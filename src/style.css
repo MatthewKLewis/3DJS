@@ -1,0 +1,184 @@
+*
+{
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+
+}
+
+html,
+body
+{
+    height: 100vh;
+}
+
+hr {
+    margin: 40px 0 40px 0;
+    height: 1px;
+    background-color: #ccc;
+    border: none;
+}
+
+.webgl
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+
+#pointer-lock {
+    position: fixed;
+    left: 300px;
+    z-index: 100;
+}
+
+#gunhand {
+    position: fixed;
+    bottom: 0;
+    left: 42%;
+    z-index: 98;
+    filter: blur(4px);
+}
+
+.reload-animation {
+    animation-duration: 750ms;
+    animation-name: reload;
+}
+
+.fire-animation {
+    animation-duration: 200ms;
+    animation-name: fire;
+}
+
+@keyframes reload {
+    from { bottom: 0; }
+    50% { bottom: -500px; }
+    to { bottom: 0; }
+}
+
+@keyframes fire {
+    from { bottom: 0; }
+    50% { 
+        bottom: -25px;
+        transform: rotate(2deg);
+    }
+    to { bottom: 0; }
+}
+
+#crosshair {
+    color: white;
+    text-align: center;
+    position: fixed;
+    left: 49%;
+    bottom: 49%;
+    width: 2%;
+    height: 2%;
+    z-index: 99;
+}
+
+#health-ammo {
+    color: white;
+    font-weight: bold;
+    font-size: 72px;
+    -webkit-text-stroke-width: 4px;
+    -webkit-text-stroke-color: black;
+    position: fixed;
+    bottom: 5%;
+    left: 72%;
+    z-index: 97;
+}
+
+#stats {
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+.popup {
+    background-color: #333;
+    position: fixed;
+    font-size: 16px;
+    display: grid;
+    grid-template-columns: 110px 620px 100px;
+    bottom: 80px;
+    left: 80px;
+    width: 600px;
+    height: 100px;
+    padding: 10px;
+    border-radius: 10px;
+    z-index: 10;
+}
+
+.died {
+    text-align: center;
+    text-emphasis: 600;
+    color: white;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+    position: fixed;
+    font-size: 72px;
+    bottom: 30%;
+    left: 30%;
+    width: 40%;
+    height: 40%;
+    z-index: 20;
+}
+
+.inventory {
+    background-color: #ddd;
+    position: fixed;
+    font-size: 16px;
+    display: grid;
+    grid-template-columns: 110px 620px 100px;
+    bottom: 20%;
+    left: 30%;
+    width: 40%;
+    height: 60%;
+    padding: 10px;
+    border-radius: 10px;
+    z-index: 9;
+}
+
+.icon {
+    width: 100px;
+    height: 100px;
+}
+
+.comms {
+    display: inline;
+    color: white;
+    width: 80%;
+}
+
+.next {
+    color: #999;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+.dead {
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-name: dead;
+}
+
+@keyframes dead {
+    from {
+        filter: blur(0px);
+    }
+    to {
+        filter: blur(20px);
+    }
+}

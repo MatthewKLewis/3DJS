@@ -79,7 +79,8 @@ loader.crossOrigin = '';
 
 //Basic Color Materials
 const mRed = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') })
-const mBlue = new THREE.MeshBasicMaterial({ color: new THREE.Color('blue') })
+const mBlue = new THREE.MeshBasicMaterial({ color: new THREE.Color('lightblue') })
+const mGrey = new THREE.MeshBasicMaterial({ color: new THREE.Color('darkgrey') })
 
 //Textured Materials
 var waterMap = loader.load('assets/images/water2.png')
@@ -153,6 +154,14 @@ class Tile {
             this.geometry = new THREE.BoxBufferGeometry(1, 1, 1)
             this.mesh = new THREE.Mesh(this.geometry, mWater)
             this.mesh.flavor = type;
+        } else if (type == 'land') {
+            this.geometry = new THREE.BoxBufferGeometry(1, 1, 1)
+            this.mesh = new THREE.Mesh(this.geometry, mGrey)
+            this.mesh.flavor = type;
+        } else if (type == 'sea') {
+            this.geometry = new THREE.BoxBufferGeometry(1, 1, 1)
+            this.mesh = new THREE.Mesh(this.geometry, mBlue)
+            this.mesh.flavor = type;
         }
         this.mesh.position.x = x;
         this.mesh.position.z = z;
@@ -162,7 +171,7 @@ class Tile {
 function generateFloorChunkIndex() {
     var tempIndex = []
     for (let i = 0; i < (CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH); i++) {
-        tempIndex.push(randBetween(1, 2))
+        tempIndex.push(randBetween(1, 4))
     }
     tempIndex.reverse()
     return tempIndex;
@@ -183,6 +192,21 @@ function addChunk(xChunk, zChunk) {
             switch (floorIndex[i]) {
                 case 1:
                     var tempFloorTile = new Tile((i % CHUNK_SIDE_LENGTH) + xNewChunkOrigin, (Math.floor(i / CHUNK_SIDE_LENGTH)) + zNewChunkOrigin, 0, i, 'water', 0, 0)
+                    floorGameObjectArray.push(tempFloorTile);
+                    scene.add(tempFloorTile.mesh)
+                    break;
+                case 2:
+                    var tempFloorTile = new Tile((i % CHUNK_SIDE_LENGTH) + xNewChunkOrigin, (Math.floor(i / CHUNK_SIDE_LENGTH)) + zNewChunkOrigin, 0, i, 'ground', 0, 0)
+                    floorGameObjectArray.push(tempFloorTile);
+                    scene.add(tempFloorTile.mesh)
+                    break;
+                case 3:
+                    var tempFloorTile = new Tile((i % CHUNK_SIDE_LENGTH) + xNewChunkOrigin, (Math.floor(i / CHUNK_SIDE_LENGTH)) + zNewChunkOrigin, 0, i, 'land', 0, 0)
+                    floorGameObjectArray.push(tempFloorTile);
+                    scene.add(tempFloorTile.mesh)
+                    break;
+                case 4:
+                    var tempFloorTile = new Tile((i % CHUNK_SIDE_LENGTH) + xNewChunkOrigin, (Math.floor(i / CHUNK_SIDE_LENGTH)) + zNewChunkOrigin, 0, i, 'sea', 0, 0)
                     floorGameObjectArray.push(tempFloorTile);
                     scene.add(tempFloorTile.mesh)
                     break;
@@ -327,10 +351,10 @@ camera.sprite.scale.set(.5, 1, .5)
 camera.sprite.lookAt(camera.position)
 camera.sprite.position.x = 0;
 camera.sprite.position.y = 1;
-camera.sprite.position.z = 10;
+camera.sprite.position.z = 0;
 scene.add(camera.sprite)
 camera.health = 100;
-camera.target = { x: 0, z: 10 }
+camera.target = { x: 0, z: 0 }
 camera.canMove = true;
 camera.speed = 0.08;
 camera.lastChunkKey = [0, 0];
@@ -375,21 +399,20 @@ canvas.addEventListener('click', (e) => {
 
 // This is a pseudo-Model class, in that it is called every frame.
 function acceptPlayerInputs() {
-    
+
     let tileOffsetX = 0.5
     let tileOffsetZ = 0.5
-    if (camera.sprite.position.x > 0) { tileOffsetX = 0.5} else { tileOffsetX = -0.5}
-    //if (camera.sprite.position.z > 0) { tileOffsetZ = 0.5} else { tileOffsetZ = -0.5}
+    camera.currentChunkKey = [Math.floor((camera.sprite.position.x + 0.5) / CHUNK_SIDE_LENGTH), Math.floor((camera.sprite.position.z + 0.5) / CHUNK_SIDE_LENGTH)]
+    camera.currentChunk = chunksMade.get(`${camera.currentChunkKey[0]},${camera.currentChunkKey[1]}`)
+
+    if (camera.currentChunkKey[0] != camera.lastChunkKey[0] || camera.currentChunkKey[1] != camera.lastChunkKey[1]) {
+        addAndRemoveNeighborChunks(camera.currentChunkKey[0], camera.currentChunkKey[1], camera.lastChunkKey[0], camera.lastChunkKey[1])
+    }
 
     var index = (Math.floor(camera.sprite.position.x + tileOffsetX) % 10) + ((Math.floor(camera.sprite.position.z + tileOffsetZ) * 10) % 100)
     if (index < 0) { index = 100 - Math.abs(index) }
     camera.currentIndex = index;
     camera.currentTile = camera.currentChunk.tileArray[camera.currentIndex];
-    camera.currentChunkKey = [Math.floor((camera.sprite.position.x + 0.5) / CHUNK_SIDE_LENGTH), Math.floor((camera.sprite.position.z + 0.5) / CHUNK_SIDE_LENGTH)]
-    camera.currentChunk = chunksMade.get(`${camera.currentChunkKey[0]},${camera.currentChunkKey[1]}`)
-    if (camera.currentChunkKey[0] != camera.lastChunkKey[0] || camera.currentChunkKey[1] != camera.lastChunkKey[1]) {
-        addAndRemoveNeighborChunks(camera.currentChunkKey[0], camera.currentChunkKey[1], camera.lastChunkKey[0], camera.lastChunkKey[1])
-    }
 
     if (camera.health <= 0) {
         camera.canMove = false;

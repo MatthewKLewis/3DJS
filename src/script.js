@@ -277,9 +277,12 @@ const sizes = {
     height: window.innerHeight
 }
 // Camera Built-in Properties
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+//const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+var width = 10;
+var height = 10;
+const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0, 100 );
 camera.position.x = 0
-camera.position.y = 3
+camera.position.y = 1
 camera.position.z = 0
 camera.offsetX = 2;
 camera.offsetY = 3;
@@ -289,7 +292,7 @@ scene.add(camera)
 
 camera.geo = new THREE.BoxBufferGeometry(0.4, 0.4, 0.6)
 camera.sprite = new THREE.Sprite(monsterSpriteMaterials.get('monster'))
-camera.sprite.scale.set(.5, .5, .5)
+camera.sprite.scale.set(.5, 1, .5)
 camera.sprite.lookAt(camera.position)
 camera.sprite.position.x = 0;
 camera.sprite.position.y = 1;
@@ -371,6 +374,9 @@ function acceptPlayerInputs() {
     camera.position.y = camera.sprite.position.y + camera.offsetY;
     camera.position.z = camera.sprite.position.z + camera.offsetZ;
     camera.lookAt(camera.sprite.position)
+
+    // //ADD AND REMOVE CHUNKS!
+    //
 }
 //#endregion
 
@@ -498,17 +504,7 @@ function generateHUDText(elapsedTime) {
 }
 
 function generateCommsText() {
-    if (camera.currentChunk && camera.canMove && Math.abs(camera.position.z) > 5) {
-        popup.className = 'popup'
-        if (icon) {
-            icon.src = './assets/images/npc1.png'
-        }
-        if (comms) {
-            comms.innerText = story[Math.min(Math.abs(camera.currentChunk.z), story.length - 1)];
-        }
-    } else {
-        popup.className = 'hidden'
-    }
+    
 }
 //#endregion
 

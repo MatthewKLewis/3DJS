@@ -4,8 +4,6 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import { Vector3 } from 'three';
 
 const canvas = document.querySelector('canvas.webgl')
@@ -45,7 +43,7 @@ const NAMES = ["Adam", "Alex", "Aaron", "Ben", "Carl", "Dan", "David", "Edward",
     "Larry", "Monte", "Matthew", "Mark", "Nathan", "Otto", "Paul", "Peter", "Roger", "Roger", "Steve", "Thomas", "Tim", "Ty", "Victor", "Walter", "Zeke"]
 
 //105 syllables, 5460 combinations at 2 sylls, 187,460 at 3 sylls, 4,780,230 at 4 sylls.
-var SYLLABLES = [] 
+var SYLLABLES = []
 const VOWELS = "aeiou".split('')
 const CONSONANTS = "bcdfghjklmnpqrstvwxyz".split('')
 for (let i = 0; i < CONSONANTS.length; i++) {
@@ -80,8 +78,8 @@ const loader = new THREE.TextureLoader();
 loader.crossOrigin = '';
 
 //Basic Color Materials
-const mRed = new THREE.MeshBasicMaterial({color: new THREE.Color('red')})
-const mBlue = new THREE.MeshBasicMaterial({color: new THREE.Color('blue')})
+const mRed = new THREE.MeshBasicMaterial({ color: new THREE.Color('red') })
+const mBlue = new THREE.MeshBasicMaterial({ color: new THREE.Color('blue') })
 
 //Textured Materials
 var waterMap = loader.load('assets/images/water2.png')
@@ -164,7 +162,7 @@ class Tile {
 function generateFloorChunkIndex() {
     var tempIndex = []
     for (let i = 0; i < (CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH); i++) {
-        tempIndex.push(randBetween(1,2))
+        tempIndex.push(randBetween(1, 2))
     }
     tempIndex.reverse()
     return tempIndex;
@@ -207,35 +205,72 @@ function removeChunk(xChunk, zChunk) {
 function addAndRemoveNeighborChunks(xChunk, zChunk, lastXChunk, lastZChunk) {
     var xDif = xChunk - lastXChunk;
     var zDif = zChunk - lastZChunk;
-    if (xDif == 1) {
-        addChunk(xChunk + 1, zChunk)
-        addChunk(xChunk + 1, zChunk - 1)
-        addChunk(xChunk + 1, zChunk + 1)
-        removeChunk(xChunk - 2, zChunk)
-        removeChunk(xChunk - 2, zChunk - 1)
-        removeChunk(xChunk - 2, zChunk + 1)
-    } else if (xDif == -1) {
-        addChunk(xChunk - 1, zChunk)
-        addChunk(xChunk - 1, zChunk - 1)
-        addChunk(xChunk - 1, zChunk + 1)
-        removeChunk(xChunk + 2, zChunk)
-        removeChunk(xChunk + 2, zChunk - 1)
-        removeChunk(xChunk + 2, zChunk + 1)
+
+    try {
+        //5 to make, 5 to remove
+        if (xDif == 1 && zDif == 1) {
+            addChunk(xChunk, zChunk + 1)
+            addChunk(xChunk + 1, zChunk)
+            addChunk(xChunk + 1, zChunk + 1)
+            addChunk(xChunk - 1, zChunk + 1)
+            addChunk(xChunk + 1, zChunk - 1)
+            removeChunk(xChunk - 2, zChunk - 2)
+            removeChunk(xChunk - 2, zChunk - 1)
+            removeChunk(xChunk - 1, zChunk - 2)
+            removeChunk(xChunk, zChunk - 2)
+            removeChunk(xChunk - 2, zChunk)
+            console.log('diag up left! done!');
+        } else if (xDif == 1 && zDif == -1) {
+            console.log('diag down left!');
+            return;
+        } else if (xDif == -1 && zDif == 1) {
+            console.log('diag up right!');
+            return;
+        } else if (xDif == -1 && zDif == -1) {
+            addChunk(xChunk - 1, zChunk)
+            addChunk(xChunk, zChunk - 1)
+            addChunk(xChunk - 1, zChunk - 1)
+            addChunk(xChunk + 1, zChunk - 1)
+            addChunk(xChunk - 1, zChunk + 1)
+            removeChunk(xChunk + 2, zChunk + 2)
+            removeChunk(xChunk + 2, zChunk + 1)
+            removeChunk(xChunk + 1, zChunk + 2)
+            removeChunk(xChunk, zChunk + 2)
+            removeChunk(xChunk + 2, zChunk)
+            console.log('diag down right!');
+        } //3 to make, 3 to remove
+        else if (xDif == 1 && zDif == 0) {
+            addChunk(xChunk + 1, zChunk)
+            addChunk(xChunk + 1, zChunk - 1)
+            addChunk(xChunk + 1, zChunk + 1)
+            removeChunk(xChunk - 2, zChunk)
+            removeChunk(xChunk - 2, zChunk - 1)
+            removeChunk(xChunk - 2, zChunk + 1)
+        } else if (xDif == -1 && zDif == 0) {
+            addChunk(xChunk - 1, zChunk)
+            addChunk(xChunk - 1, zChunk - 1)
+            addChunk(xChunk - 1, zChunk + 1)
+            removeChunk(xChunk + 2, zChunk)
+            removeChunk(xChunk + 2, zChunk - 1)
+            removeChunk(xChunk + 2, zChunk + 1)
+        } else if (zDif == 1 && xDif == 0) {
+            addChunk(xChunk, zChunk + 1)
+            addChunk(xChunk - 1, zChunk + 1)
+            addChunk(xChunk + 1, zChunk + 1)
+            removeChunk(xChunk, zChunk - 2)
+            removeChunk(xChunk - 1, zChunk - 2)
+            removeChunk(xChunk + 1, zChunk - 2)
+        } else if (zDif == -1 && xDif == 0) {
+            addChunk(xChunk, zChunk - 1)
+            addChunk(xChunk - 1, zChunk - 1)
+            addChunk(xChunk + 1, zChunk - 1)
+            removeChunk(xChunk, zChunk + 2)
+            removeChunk(xChunk - 1, zChunk + 2)
+            removeChunk(xChunk + 1, zChunk + 2)
+        }
     }
-    if (zDif == 1) {
-        addChunk(xChunk, zChunk + 1)
-        addChunk(xChunk - 1, zChunk + 1)
-        addChunk(xChunk + 1, zChunk + 1)
-        removeChunk(xChunk, zChunk - 2)
-        removeChunk(xChunk - 1, zChunk - 2)
-        removeChunk(xChunk + 1, zChunk - 2)
-    } else if (zDif == -1) {
-        addChunk(xChunk, zChunk - 1)
-        addChunk(xChunk - 1, zChunk - 1)
-        addChunk(xChunk + 1, zChunk - 1)
-        removeChunk(xChunk, zChunk + 2)
-        removeChunk(xChunk - 1, zChunk + 2)
-        removeChunk(xChunk + 1, zChunk + 2)
+    catch {
+        alert('improper chunk generation')
     }
 }
 // Add the starting 9 chunks
@@ -272,41 +307,37 @@ bkgMusic.volume = 0.1;
 /*  
 * This section sets up the controls.
 */
+// Camera Built-in Properties
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
-// Camera Built-in Properties
-//const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 var width = 10;
 var height = 10;
-const camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0, 100 );
-camera.position.x = 0
-camera.position.y = 1
-camera.position.z = 0
-camera.offsetX = 2;
+//const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+const camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 0, 100);
+camera.offsetX = -2;
 camera.offsetY = 3;
-camera.offsetZ = 2;
-camera.lookAt(0,0,0)
+camera.offsetZ = -2;
+camera.lookAt(0, 0, 0)
 scene.add(camera)
-
 camera.geo = new THREE.BoxBufferGeometry(0.4, 0.4, 0.6)
 camera.sprite = new THREE.Sprite(monsterSpriteMaterials.get('monster'))
 camera.sprite.scale.set(.5, 1, .5)
 camera.sprite.lookAt(camera.position)
 camera.sprite.position.x = 0;
 camera.sprite.position.y = 1;
-camera.sprite.position.z = 0;
+camera.sprite.position.z = 10;
 scene.add(camera.sprite)
-
 camera.health = 100;
-
-camera.target = {x: 0, z: 0}
+camera.target = { x: 0, z: 10 }
 camera.canMove = true;
-camera.speed = 0.15;
-
-camera.currentChunk = 'Unknown'
-camera.currentTile = 0
+camera.speed = 0.08;
+camera.lastChunkKey = [0, 0];
+camera.currentChunkKey = [0, 0];
+camera.currentChunk = chunksMade.get(`0,0`)
+camera.currentIndex = 0
+camera.currentTile = 'Unknown'
 
 // Raycaster
 const rayCaster = new THREE.Raycaster();
@@ -331,30 +362,46 @@ window.addEventListener('resize', () => {
     renderer.setSize(sizes.width, sizes.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
-canvas.addEventListener('click', (e)=>{
-    mousePosition.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-    mousePosition.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+canvas.addEventListener('click', (e) => {
+    mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mousePosition.y = - (e.clientY / window.innerHeight) * 2 + 1;
     rayCaster.setFromCamera(mousePosition, camera)
     var objs = rayCaster.intersectObjects(scene.children)
     if (objs.length > 0) {
         //console.log(objs[0].object)
-        camera.target = {x: objs[0].object.position.x, z: objs[0].object.position.z}
+        camera.target = { x: objs[0].object.position.x, z: objs[0].object.position.z }
     }
 })
 
 // This is a pseudo-Model class, in that it is called every frame.
 function acceptPlayerInputs() {
+    
+    let tileOffsetX = 0.5
+    let tileOffsetZ = 0.5
+    if (camera.sprite.position.x > 0) { tileOffsetX = 0.5} else { tileOffsetX = -0.5}
+    //if (camera.sprite.position.z > 0) { tileOffsetZ = 0.5} else { tileOffsetZ = -0.5}
+
+    var index = (Math.floor(camera.sprite.position.x + tileOffsetX) % 10) + ((Math.floor(camera.sprite.position.z + tileOffsetZ) * 10) % 100)
+    if (index < 0) { index = 100 - Math.abs(index) }
+    camera.currentIndex = index;
+    camera.currentTile = camera.currentChunk.tileArray[camera.currentIndex];
+    camera.currentChunkKey = [Math.floor((camera.sprite.position.x + 0.5) / CHUNK_SIDE_LENGTH), Math.floor((camera.sprite.position.z + 0.5) / CHUNK_SIDE_LENGTH)]
+    camera.currentChunk = chunksMade.get(`${camera.currentChunkKey[0]},${camera.currentChunkKey[1]}`)
+    if (camera.currentChunkKey[0] != camera.lastChunkKey[0] || camera.currentChunkKey[1] != camera.lastChunkKey[1]) {
+        addAndRemoveNeighborChunks(camera.currentChunkKey[0], camera.currentChunkKey[1], camera.lastChunkKey[0], camera.lastChunkKey[1])
+    }
+
     if (camera.health <= 0) {
         camera.canMove = false;
         canvas.classList.add('dead')
         youDied.classList.add('died')
     } else {
-        if (camera.sprite.position.x > camera.target.x - camera.speed / 2 
-            && camera.sprite.position.x < camera.target.x + camera.speed / 2 
-            && camera.sprite.position.z > camera.target.z - camera.speed / 2 
+        if (camera.sprite.position.x > camera.target.x - camera.speed / 2
+            && camera.sprite.position.x < camera.target.x + camera.speed / 2
+            && camera.sprite.position.z > camera.target.z - camera.speed / 2
             && camera.sprite.position.z < camera.target.z + camera.speed / 2) {
-                camera.sprite.position.z = camera.target.z;
-                camera.sprite.position.x = camera.target.x;
+            camera.sprite.position.z = camera.target.z;
+            camera.sprite.position.x = camera.target.x;
         } else {
             if (camera.sprite.position.x < camera.target.x) {
                 camera.sprite.position.x += camera.speed
@@ -374,9 +421,7 @@ function acceptPlayerInputs() {
     camera.position.y = camera.sprite.position.y + camera.offsetY;
     camera.position.z = camera.sprite.position.z + camera.offsetZ;
     camera.lookAt(camera.sprite.position)
-
-    // //ADD AND REMOVE CHUNKS!
-    //
+    camera.lastChunkKey = camera.currentChunkKey;
 }
 //#endregion
 
@@ -396,7 +441,7 @@ function createButton(x, y, z, callback) {
 }
 function createCreatureSprite(name, x, y, z) {
     var tempSprite = new THREE.Sprite(monsterSpriteMaterials.get(name));
-    tempSprite.rayCaster = new THREE.Raycaster(new Vector3(x,y,z), new Vector3(x, y, z - 1));
+    tempSprite.rayCaster = new THREE.Raycaster(new Vector3(x, y, z), new Vector3(x, y, z - 1));
     tempSprite.rayCaster.camera = new THREE.PerspectiveCamera();
     tempSprite.position.x = x;
     tempSprite.position.y = y;
@@ -447,7 +492,7 @@ function worldMoves() {
                 case 5:
                     monsters[i].status = "idle"
                     break;
-            }            
+            }
         }
     }
     //monster actions
@@ -500,11 +545,16 @@ function generateHUDText(elapsedTime) {
     // //STATS
     stats.innerText = "FPS: " + (1 / (elapsedTime - timeOfLastFrame)).toFixed(0) + "\n"
     stats.innerText += "Position: " + camera.sprite.position.x.toFixed(2) + " " + camera.sprite.position.z.toFixed(2) + "\n"
+    stats.innerText += "Index: " + camera.currentIndex + "\n"
     stats.innerText += "Target Coords: " + camera.target.x + " " + camera.target.z + "\n"
+    if (camera.currentTile) {
+        stats.innerText += "Current Tile Flavor: " + camera.currentTile.flavor + "\n"
+        stats.innerText += "Current Chunk Index: " + camera.currentChunkKey[0] + " " + camera.currentChunkKey[1] + "\n"
+    }
 }
 
 function generateCommsText() {
-    
+
 }
 //#endregion
 
